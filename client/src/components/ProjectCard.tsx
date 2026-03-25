@@ -11,6 +11,9 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { GhostButton, PrimaryButton } from "./Buttons";
+import { useAuth } from "@clerk/react";
+import toast from "react-hot-toast";
+import { api } from "../configs/axios";
 
 export default function ProjectCard({
   gen,
@@ -21,7 +24,9 @@ export default function ProjectCard({
   setGenerations: React.Dispatch<React.SetStateAction<Project[]>>;
   forCommunity?: boolean;
 }) {
+  const { getToken } = useAuth();
   const navigate = useNavigate();
+
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
@@ -29,11 +34,42 @@ export default function ProjectCard({
       "Are you sure you want to delete this project?",
     );
     if (!confirm) return;
-    console.log(id);
+
+    try {
+      const token = await getToken();
+      const { data } = await api.delete(`/api/project/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setGenerations((generations) =>
+        generations.filter((gen) => gen.id !== id),
+      );
+      toast.success(data.message);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+      console.error(error);
+    }
   };
 
   const togglePublish = async (projectId: string) => {
-    console.log(projectId);
+    try {
+      const token = await getToken();
+      const { data } = await api.get(`/api/user/publish/${projectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setGenerations((generations) =>
+        generations.map((gen) =>
+          gen.id === projectId
+            ? { ...gen, isPublished: data.isPublished }
+            : gen,
+        ),
+      );
+      toast.success(
+        data.isPublished ? "Project Published" : "Project Unpublished",
+      );
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+      console.error(error);
+    }
   };
   return (
     <div key={gen.id} className="mb-4 break-inside-avoid">
@@ -152,7 +188,7 @@ export default function ProjectCard({
             />
             <img
               src={gen.uploadedImages[1]}
-              className="w-16 h-16 object-cover rounded-full animate-float -ml-8"
+              className="w-16 h-16 object-top rounded-full animate-float -ml-8"
               alt="Model"
               style={{ animationDelay: "3s" }}
             />

@@ -2,6 +2,7 @@ import { ArrowRightIcon, PlayIcon, ZapIcon, CheckIcon } from "lucide-react";
 import { PrimaryButton, GhostButton } from "./Buttons";
 import { motion } from "framer-motion";
 import { assets } from "../assets/assets";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   const trustedUserImages = [
@@ -119,7 +120,7 @@ export default function Hero() {
               >
                 <a href="/" className="w-full sm:w-auto">
                   <PrimaryButton className="max-sm:w-full py-3 px-7">
-                    Start generating - It's free
+                    <Link to="/generate">Start generating - It's free</Link>
                     <ArrowRightIcon className="size-4" />
                   </PrimaryButton>
                 </a>

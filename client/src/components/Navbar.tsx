@@ -7,18 +7,23 @@ import {
   XIcon,
 } from "lucide-react";
 import { GhostButton, PrimaryButton } from "./Buttons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useClerk, useUser, UserButton } from "@clerk/react";
+import { useClerk, useUser, UserButton, useAuth } from "@clerk/react";
+import { api } from "../configs/axios";
+import toast from "react-hot-toast";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [credits, setCredits] = useState(0);
 
+  const { pathname } = useLocation();
   const { user } = useUser();
   const { openSignIn, openSignUp } = useClerk();
+  const { getToken } = useAuth();
 
   const navLinks = [
     { name: "Home", href: "/#" },
@@ -27,6 +32,23 @@ export default function Navbar() {
     { name: "Plans", href: "/plans" },
   ];
 
+  const getUserCredits = async () => {
+    try {
+      const token = await getToken();
+      const { data } = await api.get("/api/user/credits", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCredits(data.credits);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) (async () => getUserCredits())();
+  }, [user, pathname]);
   return (
     <motion.nav
       className="fixed top-5 left-0 right-0 z-50 px-4"
@@ -74,7 +96,7 @@ export default function Navbar() {
               onClick={() => navigate("/plans")}
               className="border-none text-gray-300 sm:py-1"
             >
-              Credits
+              Credits: 💎 {credits}
             </GhostButton>
             <UserButton>
               <UserButton.MenuItems>
