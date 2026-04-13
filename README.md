@@ -76,6 +76,7 @@ Clone the repository and navigate to project folder to install dependencies.
 ```
 
 **1. Server Setup (Backend)**
+
 Navigate to the server directory and install dependencies:
 ```bash
 cd server
@@ -110,6 +111,7 @@ GOOGLE_CLOUD_API_KEY="Enter your google cloud api key"
 ```
 
 **2. Client Setup (Frontend)**
+
 Open a new terminal window, navigate to the client directory, and install dependencies:
 ```bash
 cd client
